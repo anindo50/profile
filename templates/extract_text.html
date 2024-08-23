@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract Text from Image</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2">Extract Text from Image</h1>
+        </header>
+        <section class="mb-8">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Upload Image</label>
+                    <input type="file" name="image_file" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded">Extract Text</button>
+                </div>
+            </form>
+        </section>
+        {% if uploaded_file_url %}
+        <section class="mt-8">
+            <h2 class="text-xl font-semibold mb-2">Uploaded Image</h2>
+            <img src="{{ uploaded_file_url }}" alt="Uploaded Image" class="max-w-full h-auto">
+        </section>
+        {% endif %}
+        {% if text_file_url %}
+        <section class="mt-8">
+            <h2 class="text-xl font-semibold mb-2">Extracted Text File</h2>
+            <a href="{{ text_file_url }}" class="text-blue-500 hover:underline">Download Text File</a>
+        </section>
+        {% endif %}
+    </div>
+</body>
+</html>

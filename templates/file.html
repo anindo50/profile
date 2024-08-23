@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Upload</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Upload Your PDF</h1>
+            <p class="text-gray-600">Select a PDF file to upload and convert it to a text file.</p>
+        </header>
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            <div class="flex flex-col">
+                <label for="pdf_file" class="block text-sm font-medium text-gray-700">Choose PDF File</label>
+                <input type="file" name="pdf_file" id="pdf_file" accept="application/pdf" class="mt-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Upload</button>
+            </div>
+        </form>
+        {% if txt_file_url %}
+            <div class="mt-6 text-center">
+                <a href="{{ txt_file_url }}" download="converted_text.txt" class="text-blue-500 hover:underline text-lg">Download Text File</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
