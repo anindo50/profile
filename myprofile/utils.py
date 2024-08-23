@@ -74,7 +74,7 @@ import numpy as np
 
 # Path to the Tesseract executable
 # Update this path if Tesseract is not in your PATH environment variable
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 def pdf_to_images(pdf_path, dpi=300):
     """
