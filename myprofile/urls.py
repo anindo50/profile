@@ -25,6 +25,12 @@ urlpatterns = [
     path('',views.my_view, name= 'home'),
     path('file/', views.file_upload,name='file'),
     path('ocr/', views.convert_pdf_to_word_view, name='ocr'),
+    path('download/', views.download_video, name='download_video'),
+    path('voice/', views.voice, name='voice'),
+    path('gpt/',views.text_genaration,  name='gpt'),
+    path("take-ss/", views.take_screenshot, name="take_ss"),
+    path('news/', views.news_view, name='news_page'),
+    
     # path('files/', views.file,name='files'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

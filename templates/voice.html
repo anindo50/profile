@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Document</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .navbar {
+            background-color: #6e33ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .logo {
+            color: white;
+            font-size: 26px;
+            font-weight: bold;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 18px;
+            font-size: 16px;
+            transition: background 0.3s ease-in-out;
+            border-radius: 5px;
+        }
+        .navbar a:hover {
+            background-color: #4b1dbf;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        textarea {
+            width: 80%;
+            height: 150px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background-color: #6e33ff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #4b1dbf;
+        }
+        .download-link {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .download-link:hover {
+            background-color: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <img src="../media/my.jpg"class="logo rounded-full w-20 h-20">
+        <div>
+            <a href="/">Home</a>
+            <a href="/file">Pdf to Txt</a>
+            <a href="/ocr">Pdf to Word with OCR</a>
+            <a href="/voice">Text to Voice</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Convert Text to Voice</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="voice" placeholder="Enter text to convert" required></textarea>
+            <br>
+            <input type="submit" name="submit" value="Convert">
+        </form>
+        
+        {% if voice %}
+            <h3>Download Your Voice Clip</h3>
+            <a href="{{ voice }}" download="voice.wav" class="download-link">Download Voice Clip</a>
+        {% endif %}
+    </div>
+</body>
+</html>

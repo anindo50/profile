@@ -6,9 +6,22 @@ import os
 from pdfminer.high_level import extract_text
 from PIL import Image
 import pytesseract
-from .utils import pdf_to_word 
+from .utils import pdf_to_word,text_gen
 from django.conf import settings
 import shutil
+import yt_dlp
+from .forms import YouTubeDownloadForm
+from .voice import customize_tts
+import pyautogui
+import time
+from django.http import JsonResponse
+import spacy
+import whoosh.index as index
+from whoosh.qparser import QueryParser
+from whoosh.fields import Schema, TEXT
+from .models import NewsArticle
+from datetime import datetime
+
 
 
 def my_view(request):
@@ -69,13 +82,14 @@ def file_upload(request):
 
 
 def convert_pdf_to_word_view(request):
-    media_root = settings.MEDIA_ROOT
-    for filename in os.listdir(media_root):
-        file_path = os.path.join(media_root, filename)
-        if os.path.isfile(file_path) or os.path.islink(file_path):
-            os.remove(file_path)  # Remove file or symlink
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path) 
+            # clear media file
+    # media_root = settings.MEDIA_ROOT
+    # for filename in os.listdir(media_root):
+    #     file_path = os.path.join(media_root, filename)
+    #     if os.path.isfile(file_path) or os.path.islink(file_path):
+    #         os.remove(file_path)  # Remove file or symlink
+    #     elif os.path.isdir(file_path):
+    #         shutil.rmtree(file_path) 
 
 
     if request.method == 'POST' and request.FILES['pdf_file']:
@@ -101,5 +115,259 @@ def convert_pdf_to_word_view(request):
     
     return render(request, 'convert_pdf_to_word.html')
 
+
+
+def download_video(request):
+    file_url = None
+    if request.method == 'POST':
+        form = YouTubeDownloadForm(request.POST)
+        if form.is_valid():
+            video_url = form.cleaned_data['url']
+            download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')  # Define the path where videos will be saved
+
+            # Ensure the download directory exists
+            if not os.path.exists(download_path):
+                os.makedirs(download_path)
+
+            ydl_opts = {
+                'format': 'best',
+                'outtmpl': os.path.join(download_path, '%(title)s.%(ext)s'),  # Save to downloads directory
+            }
+
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info_dict = ydl.extract_info(video_url, download=True)
+                    # Generate the file path for the downloaded video
+                    file_name = f"{info_dict['title'].replace(" ","")}.{info_dict['ext']}"
+                    file_name = file_name.replace("|","")
+                    file_url = os.path.join(settings.MEDIA_URL, 'downloads', file_name)
+                    file_url = file_url.replace("\\","/")
+                    
+                    print(file_url)
+                    
+            except Exception as e:
+                return HttpResponse(f"Error during download: {e}")
+    else:
+        form = YouTubeDownloadForm()
+
+    return render(request, 'download.html', {'form': form, 'file_url': file_url})
+
+
+def voice(request):
+    output = ""
+    url = ""
+    if "submit" in request.POST:
+        text = request.POST.get('voice')
+        if text:
+            print(text.split(' ')[0])
+            output = text.split(' ')[0] + ".wav"
+            output_path = os.path.join(settings.MEDIA_ROOT, output) 
+            
+            voi = customize_tts(text,output_path,voice_index=1)
+            
+            url = output_path.replace("\\","/")
+            fs = FileSystemStorage()
+            path = os.path.join(output)
+            url = fs.url(path)
+            print(voi)
+            print(url)
+            # if "download" in request.POST:
+            #     media_root = settings.MEDIA_ROOT
+            #     for filename in os.listdir(media_root):
+            #         if output:
+            #             print(output)
+            #             file_path = os.path.join(media_root, filename)
+            #             if os.path.isfile(file_path) or os.path.islink(file_path):
+            #                 os.remove(file_path)  # Remove file or symlink
+            #             elif os.path.isdir(file_path):
+            #                 shutil.rmtree(file_path)
+            return render(request,'voice.html',{'voice':url})
+        
+
+    
+    return render(request,'voice.html')
+
+
+def text_genaration(request):
+    if "submit" in request.POST:
+        text = request.POST.get('text')
+        gen_tex = text_gen(text)
+        print(gen_tex)
+        return render(request,"text.html",{"gen":gen_tex})
+    return render(request,"text.html")
+
+
+screenshot_dir = os.path.join(settings.MEDIA_ROOT, "screenshots")
+os.makedirs(screenshot_dir, exist_ok=True)  # Ensure the folder exists
+
+def take_screenshot(request):
+    """Capture and save a screenshot, then return its URL."""
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    screenshot_name = f"screenshot_{timestamp}.png"
+    screenshot_path = os.path.join(screenshot_dir, screenshot_name)
+    screenshot_url = f"{settings.MEDIA_URL}screenshots/{screenshot_name}"
+
+    # Take the screenshot
+    screenshot = pyautogui.screenshot()
+    screenshot.save(screenshot_path)
+
+    # return JsonResponse({"message": "Screenshot saved", "screenshot_url": screenshot_url})
+    return render(request,"take_ss.html",{"message": "Screenshot saved","screenshot_url": screenshot_url})
+
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import time
+
+# Set up Chrome options for headless browsing and User-Agent header
+def create_driver():
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')  # Run the browser in headless mode
+    chrome_options.add_argument('--no-sandbox')  # Required for running in certain environments (e.g., Docker)
+    chrome_options.add_argument('--disable-dev-shm-usage')  # Disable shared memory usage
+    chrome_options.add_argument('start-maximized')  # Start browser in maximized mode
+    chrome_options.add_argument('disable-infobars')  # Disable the infobar
+    chrome_options.add_argument('--disable-extensions')  # Disable extensions
+    chrome_options.add_argument('--disable-gpu')  # Disable GPU (needed for headless mode)
+
+    # Set the custom User-Agent
+    chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')
+
+    # Create the WebDriver with the above options
+    driver_path = ChromeDriverManager()
+    driver = webdriver.Chrome(options=chrome_options)
+    return driver
+
+# Fetch the latest news articles by scraping
+def fetch_news():
+    url = 'https://www.dhakatribune.com/'
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+    driver = create_driver()
+    # response = requests.get(url, headers=headers)
+    driver.get(url)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+    headlines = soup.find_all('a', class_='link_overlay')
+    news_dic = {}  # Initialize the dictionary to store article details
+    
+    driver = create_driver()  # Open the browser only once
+
+    for h in headlines[:7]:
+        article_url = h.get('href').strip()
+        article_title = h.get('title')
+        if article_url.startswith("//"):
+            article_url = article_url.replace("//","https://")
+
+            if not article_url or not article_title:  # Skip if URL or title is missing
+                continue
+
+            print(f"Fetching article: {article_title} ({article_url})")
+
+            driver.get(article_url)  # Open article page
+            time.sleep(3)  # Allow the page to load
+
+            article_soup = BeautifulSoup(driver.page_source, 'html.parser')
+            container = article_soup.find("div", class_="content_detail_content_inner")
+
+            if not container:  # If no content is found, skip this article
+                print(f"Warning: No content found for {article_title}")
+                continue
+
+            news_list = []
+            all_p = container.find_all("p")
+
+            for p in all_p:
+                text = p.text.strip()
+                if text:
+                    news_list.append(text)
+                    print(text)
+            
+            news_dic[article_title] = news_list  # Store article text
+
+    driver.quit()  # Close the browser after all articles are processed
+    return news_dic
+
+
+# def news_view(request):
+    
+#     today = datetime.today().date()
+#     # if not NewsArticle.objects.exists():
+#     #     news_data = fetch_news()  # Fetch the news dictionary
+#     #     for title, paragraphs in news_data.items():
+#     #         # Clean the paragraphs by removing unwanted spaces and line breaks
+#     #         content = "\n".join([p.strip() for p in paragraphs])  # Strip unnecessary spaces
+#     #         content = content.replace("\n", " ")  # Replace line breaks with spaces
+            
+#     #         # Save the cleaned content to the database
+#     #         NewsArticle.objects.create(title=title, content=content, date = today)
+    
+    
+#     print(today)
+#     all_data = NewsArticle.objects.all()
+#     print(all_data)
+#     new_dic = dict()
+#     for data in all_data:
+        
+#         date = data.date
+#         title = data.title
+#         content = data.content
+        
+#         print("i am today",today)
+#         print("i am date",date)
+        
+        
+        
+#         new_dic[title] = content
+#         return render(request, 'news.html', {'news_data': new_dic})
+        
+#         if date != today:
+#             print("i am in differ")
+#             news_data = fetch_news()
+#             if date is not None:
+#                 for title, paragraphs in news_data.items():
+#                     model = NewsArticle(title = title, content = paragraphs, date = today)
+#                     model.save()
+#                 return render(request, 'news.html', {'news_data': news_data})
+
+
+def news_view(request):
+   
+    today = datetime.today().date()
+    
+    print("Today's date:", today)
+
+    # Fetch all news articles
+    all_data = NewsArticle.objects.all()
+    print("Fetched articles:", all_data)
+
+    new_dic = {}
+
+    for data in all_data:
+        date = data.date
+        title = data.title
+        content = data.content
+
+        print("Processing article:", title)
+        print("Article date:", date)
+
+        new_dic[title] = content  # Store each article's title and content
+     
+    # Move render outside the loop
+    return render(request, 'news.html', {'news_data': new_dic})
+
+
+def update_news(request):
+    if request.method == "POST":
+        new_dic = {}
+        news_data = fetch_news()
+        NewsArticle.objects.all().delete()
+        for t , content in news_data.items():
+            new_dic[t] = content
+        
+        return render(request, 'news.html', {'news_data': new_dic})
 
 

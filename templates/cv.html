@@ -7,18 +7,60 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         .header-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #000000 100%);
         }
         .header-text {
             color: #fff;
         }
         .section-bg {
-            background-color: #a1d3f5;
+            background-color: #F3F4F6;
+        }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .navbar {
+            background-color: #6e33ff;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+        .navbar .logo {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 14px 20px;
+            display: inline-block;
+        }
+        .navbar a:hover {
+            background-color: #f30b0b;
+            border-radius: 5px;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
         }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-    <div class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
+    <div class="navbar">
+        <img src="../media/my.jpg"class="logo rounded-full w-20 h-20">
+        <div>
+            <a href="">Home</a>
+            <a href="/file">Pdf to txt</a>
+            <a href="/ocr">Pdf to word with ocr</a>
+            <a href="/voice">Text to voice</a>
+            <a href="/gpt">Ai chatbot</a>
+            <a href="/news">Live News</a>
+        </div>
+    </div>
+    <div class="w-full h-full mx-auto p-6 bg-black shadow-md mt-100">
         <header class="header-bg text-center mb-8 p-6 rounded-lg">
             <h1 class="text-4xl font-bold mb-2 header-text">Intishar Rahman Anindo</h1>
             <h2 class="text-xl text-gray-200 header-text">Software Developer</h2>
@@ -98,7 +140,7 @@
         </section>
     </div>
     <hr class="my-8">
-    <div class="text-center mb-8">
+    <!-- <div class="text-center mb-8">
         <h2 class="text-2xl font-semibold mb-4">PDF TO TXT FILE WITHOUT OCR</h2>
         <a href="/file" class="text-blue-500 hover:underline">Click here for PDF to TXT file conversion</a>
     </div>
@@ -106,6 +148,6 @@
     <div class="text-center mb-8">
         <h2 class="text-2xl font-semibold mb-4">PDF TO WORD FILE WITH OCR</h2>
         <a href="/ocr" class="text-blue-500 hover:underline">Click here for PDF to DOCX file conversion</a>
-    </div>
+    </div> -->
 </body>
 </html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Screenshot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        #screenshot-img {
+            margin-top: 20px;
+            display: none;
+            max-width: 100%;
+            border: 2px solid #333;
+            border-radius: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #005f73;
+        }
+    </style>
+</head>
+<body>
+    <h1>Take a Screenshot</h1>
+    <button onclick="captureScreenshot()">Capture Screenshot</button>
+    
+    <img id="screenshot-img" src="" alt="Screenshot">
+
+    <script>
+        function captureScreenshot() {
+            fetch('/take-ss/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.screenshot_url) {
+                        document.getElementById('screenshot-img').src = data.screenshot_url;
+                        document.getElementById('screenshot-img').style.display = 'block';
+                    } else {
+                        console.error("Screenshot URL not received:", data);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Listen for Ctrl + G keypress
+        document.addEventListener("keydown", function(event) {
+            if (event.ctrlKey && event.key === "g") {
+                captureScreenshot();
+            }
+        });
+    </script>
+</body>
+</html>

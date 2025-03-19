@@ -74,7 +74,7 @@ import numpy as np
 
 # Path to the Tesseract executable
 # Update this path if Tesseract is not in your PATH environment variable
-# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 def pdf_to_images(pdf_path, dpi=300):
     """
@@ -233,3 +233,24 @@ def pdf_to_word(pdf_path, output_path, dpi=300, lang='eng'):
 #     text_to_word(text, output_path)
 
 
+from langchain_groq import ChatGroq
+api_key = "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"
+def text_gen(text):
+    llm = ChatGroq(
+        model="mixtral-8x7b-32768",
+        temperature=0,
+        max_tokens=None,
+        timeout=None,
+        max_retries=2,
+        api_key = api_key,
+        # other params...
+    )
+    messages = [
+        (
+            "system",
+            text,
+        ),
+        # ("human", "I love programming."),
+    ]
+    ai_msg = llm.invoke(messages)
+    return ai_msg.content

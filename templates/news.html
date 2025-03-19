@@ -1,0 +1,31 @@
+<!-- news.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latest News</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h1 class="my-4">Latest News</h1>
+    
+    <!-- Loop through each news article -->
+    {% for title, content in news_data.items %}
+        <div class="news-item">
+            <h3>{{ title }}</h3>
+            <p>{{ content|linebreaksbr }}</p> <!-- Convert line breaks into <br> tags -->
+        </div>
+        <hr>
+    {% endfor %}
+    
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
