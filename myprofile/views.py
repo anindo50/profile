@@ -146,7 +146,7 @@ def download_video(request):
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info_dict = ydl.extract_info(video_url, download=True)
                     # Generate the file path for the downloaded video
-                    file_name = f"{info_dict['title'].replace(" ","")}.{info_dict['ext']}"
+                    file_name = f'{info_dict["title"].replace(" ", "")}.{info_dict["ext"]}'
                     file_name = file_name.replace("|","")
                     file_url = os.path.join(settings.MEDIA_URL, 'downloads', file_name)
                     file_url = file_url.replace("\\","/")
