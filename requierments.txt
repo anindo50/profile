@@ -4,3 +4,4 @@ yt-dlp==2024.8.6
 pdfminer.six==20231228
 langchain-groq==0.2.5
 gunicorn==23.0.0
+pyttsx3==2.97
