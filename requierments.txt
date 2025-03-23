@@ -6,3 +6,4 @@ langchain-groq==0.2.5
 gunicorn==23.0.0
 pyttsx3==2.97
 selenium==4.17.2
+bs4==0.0.2
