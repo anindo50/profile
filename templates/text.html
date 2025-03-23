@@ -177,8 +177,8 @@
     <div class="navbar">
         <div>
             <a href="/">Home</a>
-            <a href="/file">Pdf to txt</a>
-            <a href="/ocr">Pdf to word with ocr</a>
+            <!-- <a href="/file">Pdf to txt</a>
+            <a href="/ocr">Pdf to word with ocr</a> -->
             <a href="/voice">Text to voice</a>
         </div>
     </div>
@@ -196,7 +196,7 @@
     <form method="POST">
         {% csrf_token %}
         <input type="text" name="text" placeholder="Type your message..." required>
-        <input type="submit" name="submit" value="Send" id="submit-btn" disabled>
+        <input type="submit" name="submit" value="Send" id="submit-btn" >
     </form>
 </body>
 </html>

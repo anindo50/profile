@@ -1,13 +1,21 @@
-from pdfminer.high_level import extract_text
 
-def pdf_to_text(pdf_path, txt_path):
-    # Extract text from PDF
-    text = extract_text(pdf_path)
+
+######## pdf to txt ##########
+
+# from pdfminer.high_level import extract_text
+
+# def pdf_to_text(pdf_path, txt_path):
+#     # Extract text from PDF
+#     text = extract_text(pdf_path)
     
-    # Save the extracted text to a text file with UTF-8 encoding
-    with open(txt_path, 'w', encoding='utf-8') as txt_file:
-         txt_file.write(text)
-    return txt_path
+#     # Save the extracted text to a text file with UTF-8 encoding
+#     with open(txt_path, 'w', encoding='utf-8') as txt_file:
+#          txt_file.write(text)
+#     return txt_path
+
+
+###########################################################################
+
 
 
 # def pdf_to_text(pdf_path, txt_path):
@@ -64,96 +72,99 @@ def pdf_to_text(pdf_path, txt_path):
 
 
 
-import fitz  # PyMuPDF
-from PIL import Image
-import pytesseract
-from docx import Document
-import io
-import cv2
-import numpy as np
 
-# Path to the Tesseract executable
-# Update this path if Tesseract is not in your PATH environment variable
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+######################    pdf to word with ocr    ###############################
 
-def pdf_to_images(pdf_path, dpi=300):
-    """
-    Convert PDF pages to images with specified DPI for better OCR accuracy.
-    """
-    pdf_document = fitz.open(pdf_path)
-    images = []
-    for page_num in range(len(pdf_document)):
-        page = pdf_document.load_page(page_num)
-        pix = page.get_pixmap(dpi=dpi)  # Set a higher DPI for better image resolution
-        img = Image.open(io.BytesIO(pix.tobytes()))
-        images.append(img)
-    return images
+# import fitz  # PyMuPDF
+# from PIL import Image
+# import pytesseract
+# from docx import Document
+# import io
+# import cv2
+# import numpy as np
 
-def preprocess_image_with_opencv(img):
-    """
-    Preprocess the image using OpenCV to improve OCR accuracy.
-    This involves converting to grayscale, applying thresholding, and noise reduction.
-    """
-    # Convert PIL Image to OpenCV format
-    img_cv = np.array(img)
-    img_cv = cv2.cvtColor(img_cv, cv2.COLOR_RGB2BGR)
+# # Path to the Tesseract executable
+# # Update this path if Tesseract is not in your PATH environment variable
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-    # Convert to grayscale
-    gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+# def pdf_to_images(pdf_path, dpi=300):
+#     """
+#     Convert PDF pages to images with specified DPI for better OCR accuracy.
+#     """
+#     pdf_document = fitz.open(pdf_path)
+#     images = []
+#     for page_num in range(len(pdf_document)):
+#         page = pdf_document.load_page(page_num)
+#         pix = page.get_pixmap(dpi=dpi)  # Set a higher DPI for better image resolution
+#         img = Image.open(io.BytesIO(pix.tobytes()))
+#         images.append(img)
+#     return images
 
-    # Apply Gaussian Blurring to reduce noise
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+# def preprocess_image_with_opencv(img):
+#     """
+#     Preprocess the image using OpenCV to improve OCR accuracy.
+#     This involves converting to grayscale, applying thresholding, and noise reduction.
+#     """
+#     # Convert PIL Image to OpenCV format
+#     img_cv = np.array(img)
+#     img_cv = cv2.cvtColor(img_cv, cv2.COLOR_RGB2BGR)
 
-    # Apply adaptive thresholding to make the text stand out
-    thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                                   cv2.THRESH_BINARY, 11, 2)
+#     # Convert to grayscale
+#     gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
 
-    # Optionally, dilate or erode to improve character separation
-    kernel = np.ones((1, 1), np.uint8)
-    processed_img = cv2.dilate(thresh, kernel, iterations=1)
+#     # Apply Gaussian Blurring to reduce noise
+#     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    # Convert back to PIL Image for Tesseract
-    return Image.fromarray(processed_img)
+#     # Apply adaptive thresholding to make the text stand out
+#     thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+#                                    cv2.THRESH_BINARY, 11, 2)
 
-def ocr_images(images, lang='eng'):
-    """
-    Perform OCR on the given images and extract text.
-    Handles OCR errors and allows for language specification.
-    """
-    text = ""
-    for img in images:
-        try:
-            # Preprocess the image using OpenCV
-            processed_img = preprocess_image_with_opencv(img)
+#     # Optionally, dilate or erode to improve character separation
+#     kernel = np.ones((1, 1), np.uint8)
+#     processed_img = cv2.dilate(thresh, kernel, iterations=1)
+
+#     # Convert back to PIL Image for Tesseract
+#     return Image.fromarray(processed_img)
+
+# def ocr_images(images, lang='eng'):
+#     """
+#     Perform OCR on the given images and extract text.
+#     Handles OCR errors and allows for language specification.
+#     """
+#     text = ""
+#     for img in images:
+#         try:
+#             # Preprocess the image using OpenCV
+#             processed_img = preprocess_image_with_opencv(img)
             
-            # Extract text from the preprocessed image
-            extracted_text = pytesseract.image_to_string(processed_img, lang=lang).strip()
-            text += extracted_text + "\n\n"
-        except pytesseract.TesseractError as e:
-            # Handle any errors during OCR
-            print(f"OCR error occurred: {e}")
-            text += "[Error in OCR]\n\n"
-    return text
+#             # Extract text from the preprocessed image
+#             extracted_text = pytesseract.image_to_string(processed_img, lang=lang).strip()
+#             text += extracted_text + "\n\n"
+#         except pytesseract.TesseractError as e:
+#             # Handle any errors during OCR
+#             print(f"OCR error occurred: {e}")
+#             text += "[Error in OCR]\n\n"
+#     return text
 
-def text_to_word(text, output_path):
-    """
-    Save the extracted text to a Word document.
-    """
-    doc = Document()
-    doc.add_paragraph(text)
-    doc.save(output_path)
+# def text_to_word(text, output_path):
+#     """
+#     Save the extracted text to a Word document.
+#     """
+#     doc = Document()
+#     doc.add_paragraph(text)
+#     doc.save(output_path)
 
-def pdf_to_word(pdf_path, output_path, dpi=300, lang='eng'):
-    """
-    Full pipeline: Convert PDF to images, extract text via OCR, and save it to a Word document.
-    Includes options for setting image DPI and OCR language.
-    """
-    images = pdf_to_images(pdf_path, dpi=dpi)
-    text = ocr_images(images, lang=lang)
-    # print(text)  # Optional: Print the text to the console for inspection
-    text_to_word(text, output_path)
+# def pdf_to_word(pdf_path, output_path, dpi=300, lang='eng'):
+#     """
+#     Full pipeline: Convert PDF to images, extract text via OCR, and save it to a Word document.
+#     Includes options for setting image DPI and OCR language.
+#     """
+#     images = pdf_to_images(pdf_path, dpi=dpi)
+#     text = ocr_images(images, lang=lang)
+#     # print(text)  # Optional: Print the text to the console for inspection
+#     text_to_word(text, output_path)
 
-
+#######################################################################################################################
 
 '''with google vision ocr'''
 # from google.cloud import vision
@@ -234,23 +245,23 @@ def pdf_to_word(pdf_path, output_path, dpi=300, lang='eng'):
 
 
 from langchain_groq import ChatGroq
-api_key = "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"
+api_key = "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"
 def text_gen(text):
     llm = ChatGroq(
-        model="mixtral-8x7b-32768",
+        model="llama3-8b-8192",
         temperature=0,
-        max_tokens=None,
-        timeout=None,
+        max_tokens=256,  # Set a limit to prevent excessive token usage
+        timeout=10,  # Avoid infinite waiting
         max_retries=2,
-        api_key = api_key,
-        # other params...
+        api_key=api_key,
     )
-    messages = [
-        (
-            "system",
-            text,
-        ),
-        # ("human", "I love programming."),
-    ]
-    ai_msg = llm.invoke(messages)
-    return ai_msg.content
+    
+    messages = [{"role": "system", "content": text}]
+    
+    try:
+        ai_msg = llm.invoke(messages)
+        print(ai_msg.content)
+        return ai_msg.content
+    except Exception as e:
+        print(f"Error: {e}")
+        return "Error generating response"

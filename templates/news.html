@@ -6,12 +6,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Latest News</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+          .navbar {
+            background-color: #6e33ff;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+        .navbar .logo {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 14px 20px;
+            display: inline-block;
+        }
+        .navbar a:hover {
+            background-color: #f30b0b;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
+<div class="navbar">
+    <div>
+        <a href="/">Home</a>
+        <a href="/voice">Text to voice</a>
+        <a href="/gpt">Ai chatbot</a>
+        <a href="/stocks">Live International Stock Market</a>
+    </div>
+
+    </div><br><br>
 
 <div class="container">
-    <h1 class="my-4">Latest News</h1>
-    
+    <h1 class="my-4">Latest News</h1><br>
+    <p>if you think news is not updated press update button</p>
+    <a href="/update" class="btn btn-primary">Update</a><br><hr>
+
+    <!-- <form method="POST">
+        {% csrf_token %}
+        <a href="/update"> update</a>
+    </form> -->
     <!-- Loop through each news article -->
     {% for title, content in news_data.items %}
         <div class="news-item">

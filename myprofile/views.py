@@ -1,12 +1,13 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.core.files.storage import FileSystemStorage
-from .utils import pdf_to_text
+# from .utils import pdf_to_text
 import os
-from pdfminer.high_level import extract_text
+# from pdfminer.high_level import extract_text
 from PIL import Image
 import pytesseract
-from .utils import pdf_to_word,text_gen
+from .utils import text_gen
+# from .utils import pdf_to_word
 from django.conf import settings
 import shutil
 import yt_dlp
@@ -15,14 +16,11 @@ from .voice import customize_tts
 import pyautogui
 import time
 from django.http import JsonResponse
-import spacy
-import whoosh.index as index
-from whoosh.qparser import QueryParser
-from whoosh.fields import Schema, TEXT
 from .models import NewsArticle
 from datetime import datetime
-
-
+import requests
+import unicodedata
+import re
 
 def my_view(request):
     return render(request, 'cv.html')
@@ -52,70 +50,80 @@ def cv_view(request):
 #             return HttpResponse("No file uploaded")
 #     return render(request, 'file.html')
 
-def file_upload(request):
-    if request.method == "POST":
-        uploaded_file = request.FILES.get('pdf_file')
-        if uploaded_file:
-            # Save the uploaded PDF file temporarily
-            fs = FileSystemStorage()
-            pdf_path = fs.save(uploaded_file.name, uploaded_file)
-            pdf_full_path = fs.path(pdf_path)
+
+
+
+######### pdf to txt ##################
+
+# def file_upload(request):
+#     if request.method == "POST":
+#         uploaded_file = request.FILES.get('pdf_file')
+#         if uploaded_file:
+#             # Save the uploaded PDF file temporarily
+#             fs = FileSystemStorage()
+#             pdf_path = fs.save(uploaded_file.name, uploaded_file)
+#             pdf_full_path = fs.path(pdf_path)
             
-            # Define the path for the output text file
-            txt_file_name = os.path.splitext(uploaded_file.name)[0] + '.txt'
-            txt_full_path = os.path.join(fs.location, txt_file_name)
-            print("txt_file_name",txt_file_name ," ", "txt_full_path",txt_full_path)
+#             # Define the path for the output text file
+#             txt_file_name = os.path.splitext(uploaded_file.name)[0] + '.txt'
+#             txt_full_path = os.path.join(fs.location, txt_file_name)
+#             print("txt_file_name",txt_file_name ," ", "txt_full_path",txt_full_path)
 
-            try:
-                # Convert PDF to text
-                text_file = pdf_to_text(pdf_full_path, txt_full_path)
+#             try:
+#                 # Convert PDF to text
+#                 text_file = pdf_to_text(pdf_full_path, txt_full_path)
                 
-                # Provide the URL to download the text file
-                txt_file_url = fs.url(os.path.basename(text_file))
-                print("file created")
-                return render(request, 'file.html', {'txt_file_url': txt_file_url})
-            except Exception as e:
-                return HttpResponse(f"An error occurred while processing the PDF: {e}")
-        else:
-            return HttpResponse("No file uploaded")
-    return render(request, 'file.html')
+#                 # Provide the URL to download the text file
+#                 txt_file_url = fs.url(os.path.basename(text_file))
+#                 print("file created")
+#                 return render(request, 'file.html', {'txt_file_url': txt_file_url})
+#             except Exception as e:
+#                 return HttpResponse(f"An error occurred while processing the PDF: {e}")
+#         else:
+#             return HttpResponse("No file uploaded")
+#     return render(request, 'file.html')
+
+###########################################################################################################
 
 
-def convert_pdf_to_word_view(request):
-            # clear media file
-    # media_root = settings.MEDIA_ROOT
-    # for filename in os.listdir(media_root):
-    #     file_path = os.path.join(media_root, filename)
-    #     if os.path.isfile(file_path) or os.path.islink(file_path):
-    #         os.remove(file_path)  # Remove file or symlink
-    #     elif os.path.isdir(file_path):
-    #         shutil.rmtree(file_path) 
+################ pdf to word with ocr ####################
 
 
-    if request.method == 'POST' and request.FILES['pdf_file']:
-        pdf_file = request.FILES['pdf_file']
-        fs = FileSystemStorage()
-        pdf_filename = fs.save(pdf_file.name, pdf_file)
-        pdf_file_url = fs.url(pdf_filename)
+# def convert_pdf_to_word_view(request):
+#             # clear media file
+#     # media_root = settings.MEDIA_ROOT
+#     # for filename in os.listdir(media_root):
+#     #     file_path = os.path.join(media_root, filename)
+#     #     if os.path.isfile(file_path) or os.path.islink(file_path):
+#     #         os.remove(file_path)  # Remove file or symlink
+#     #     elif os.path.isdir(file_path):
+#     #         shutil.rmtree(file_path) 
+
+
+#     if request.method == 'POST' and request.FILES['pdf_file']:
+#         pdf_file = request.FILES['pdf_file']
+#         fs = FileSystemStorage()
+#         pdf_filename = fs.save(pdf_file.name, pdf_file)
+#         pdf_file_url = fs.url(pdf_filename)
         
-        # Convert PDF to Word
-        output_filename = os.path.splitext(pdf_file.name)[0] + '.docx'
-        output_path = fs.path(output_filename)
+#         # Convert PDF to Word
+#         output_filename = os.path.splitext(pdf_file.name)[0] + '.docx'
+#         output_path = fs.path(output_filename)
         
-        pdf_to_word(fs.path(pdf_filename), output_path,dpi=300,lang='eng')
+#         pdf_to_word(fs.path(pdf_filename), output_path,dpi=300,lang='eng')
         
-        # Provide a link to download the Word file
-        word_file_url = fs.url(output_filename)
+#         # Provide a link to download the Word file
+#         word_file_url = fs.url(output_filename)
         
-        return render(request, 'convert_pdf_to_word.html', {
-            'pdf_file_url': pdf_file_url,
-            'word_file_url': word_file_url
-        })
+#         return render(request, 'convert_pdf_to_word.html', {
+#             'pdf_file_url': pdf_file_url,
+#             'word_file_url': word_file_url
+#         })
    
     
-    return render(request, 'convert_pdf_to_word.html')
+#     return render(request, 'convert_pdf_to_word.html')
 
-
+#########################################################################################
 
 def download_video(request):
     file_url = None
@@ -169,8 +177,8 @@ def voice(request):
             fs = FileSystemStorage()
             path = os.path.join(output)
             url = fs.url(path)
-            print(voi)
-            print(url)
+            # print(voi)
+            # print(url)
             # if "download" in request.POST:
             #     media_root = settings.MEDIA_ROOT
             #     for filename in os.listdir(media_root):
@@ -189,12 +197,14 @@ def voice(request):
 
 
 def text_genaration(request):
-    if "submit" in request.POST:
+    gen_tex = None
+    if request.method == "POST":
         text = request.POST.get('text')
-        gen_tex = text_gen(text)
-        print(gen_tex)
-        return render(request,"text.html",{"gen":gen_tex})
-    return render(request,"text.html")
+        if text:
+            gen_tex = text_gen(text)
+            if gen_tex:
+                print(gen_tex)
+    return render(request, "text.html", {"gen": gen_tex})
 
 
 screenshot_dir = os.path.join(settings.MEDIA_ROOT, "screenshots")
@@ -217,7 +227,6 @@ def take_screenshot(request):
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 
@@ -236,7 +245,6 @@ def create_driver():
     chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')
 
     # Create the WebDriver with the above options
-    driver_path = ChromeDriverManager()
     driver = webdriver.Chrome(options=chrome_options)
     return driver
 
@@ -256,7 +264,7 @@ def fetch_news():
     
     driver = create_driver()  # Open the browser only once
 
-    for h in headlines[:7]:
+    for h in headlines:
         article_url = h.get('href').strip()
         article_title = h.get('title')
         if article_url.startswith("//"):
@@ -281,7 +289,7 @@ def fetch_news():
             all_p = container.find_all("p")
 
             for p in all_p:
-                text = p.text.strip()
+                text = p.text.replace("', '"," ").strip()
                 if text:
                     news_list.append(text)
                     print(text)
@@ -353,21 +361,76 @@ def news_view(request):
 
         print("Processing article:", title)
         print("Article date:", date)
+        content = content.replace("[","").replace("]","").replace("', '","").replace('", "',' ')
+        content = re.sub(r"',\s*\"|\",\s*'", " ", content)
 
         new_dic[title] = content  # Store each article's title and content
-     
+    
     # Move render outside the loop
     return render(request, 'news.html', {'news_data': new_dic})
 
 
 def update_news(request):
-    if request.method == "POST":
-        new_dic = {}
-        news_data = fetch_news()
-        NewsArticle.objects.all().delete()
-        for t , content in news_data.items():
-            new_dic[t] = content
-        
-        return render(request, 'news.html', {'news_data': new_dic})
+    today = datetime.today().date()
+    new_dic = {}
+    news_data = fetch_news()
+    NewsArticle.objects.all().delete()
+    for t , content in news_data.items():
+        # content = content.replace("[","").replace("]","").replace("', '","")
+        # content = re.sub(r"',\s*\"|\",\s*'", " ", content)
+        new_dic[t] = content
+    
+    for title , paragraph in new_dic.items():
+        model = NewsArticle(title = title, content = paragraph, date = today)
+        model.save()
+    
+    return redirect("news_page")
+    # return render(request, 'news.html', {'news_data': new_dic})
 
 
+
+
+
+def get_most_profitable_stocks():
+    base_url = "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved?formatted=true&lang=en-US&region=US&scrIds=most_actives&corsDomain=finance.yahoo.com"
+    
+    # Specify a user-agent header
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+    }
+    
+    response = requests.get(base_url, headers=headers)
+    data = response.json()
+    
+    stocks_info = []
+
+    if 'finance' in data and 'result' in data['finance'] and data['finance']['result']:
+        quotes = data['finance']['result'][0]['quotes']
+        for quote in quotes:
+            symbol = quote['symbol']
+            name = quote['shortName']
+            price = quote['regularMarketPrice']['raw']
+            change_percent = quote['regularMarketChangePercent']['raw']
+
+            # Fetch previous day's closing price
+            previous_close = quote['regularMarketPreviousClose']['raw']
+
+            # Calculate increase or decrease rate in percentage
+            if previous_close > 0:
+                increase_rate = ((price - previous_close) / previous_close) * 100
+            else:
+                increase_rate = 0
+                
+            decrease_rate = change_percent - increase_rate
+
+            stocks_info.append({'symbol': symbol, 'name': name, 'price': price, 'change_percent': change_percent,
+                                'increase_rate': f"{increase_rate:.7f}", 'decrease_rate': f"{decrease_rate:.7f}",})
+    
+    return stocks_info
+
+
+
+
+def stock_market_view(request):
+    stocks = get_most_profitable_stocks()
+    return render(request, 'stocks.html', {'stocks': stocks})
