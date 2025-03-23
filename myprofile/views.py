@@ -13,7 +13,7 @@ import shutil
 import yt_dlp
 from .forms import YouTubeDownloadForm
 from .voice import customize_tts
-import pyautogui
+# import pyautogui
 import time
 from django.http import JsonResponse
 from .models import NewsArticle
@@ -207,22 +207,22 @@ def text_genaration(request):
     return render(request, "text.html", {"gen": gen_tex})
 
 
-screenshot_dir = os.path.join(settings.MEDIA_ROOT, "screenshots")
-os.makedirs(screenshot_dir, exist_ok=True)  # Ensure the folder exists
+# screenshot_dir = os.path.join(settings.MEDIA_ROOT, "screenshots")
+# os.makedirs(screenshot_dir, exist_ok=True)  # Ensure the folder exists
 
-def take_screenshot(request):
-    """Capture and save a screenshot, then return its URL."""
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    screenshot_name = f"screenshot_{timestamp}.png"
-    screenshot_path = os.path.join(screenshot_dir, screenshot_name)
-    screenshot_url = f"{settings.MEDIA_URL}screenshots/{screenshot_name}"
+# def take_screenshot(request):
+#     """Capture and save a screenshot, then return its URL."""
+#     timestamp = time.strftime("%Y%m%d-%H%M%S")
+#     screenshot_name = f"screenshot_{timestamp}.png"
+#     screenshot_path = os.path.join(screenshot_dir, screenshot_name)
+#     screenshot_url = f"{settings.MEDIA_URL}screenshots/{screenshot_name}"
 
-    # Take the screenshot
-    screenshot = pyautogui.screenshot()
-    screenshot.save(screenshot_path)
+#     # Take the screenshot
+#     screenshot = pyautogui.screenshot()
+#     screenshot.save(screenshot_path)
 
-    # return JsonResponse({"message": "Screenshot saved", "screenshot_url": screenshot_url})
-    return render(request,"take_ss.html",{"message": "Screenshot saved","screenshot_url": screenshot_url})
+#     # return JsonResponse({"message": "Screenshot saved", "screenshot_url": screenshot_url})
+#     return render(request,"take_ss.html",{"message": "Screenshot saved","screenshot_url": screenshot_url})
 
 
 from selenium import webdriver
