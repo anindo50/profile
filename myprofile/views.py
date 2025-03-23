@@ -4,12 +4,12 @@ from django.core.files.storage import FileSystemStorage
 # from .utils import pdf_to_text
 import os
 # from pdfminer.high_level import extract_text
-from PIL import Image
-import pytesseract
+# from PIL import Image
+# import pytesseract
 from .utils import text_gen
 # from .utils import pdf_to_word
 from django.conf import settings
-import shutil
+# import shutil
 import yt_dlp
 from .forms import YouTubeDownloadForm
 from .voice import customize_tts
@@ -19,7 +19,6 @@ from django.http import JsonResponse
 from .models import NewsArticle
 from datetime import datetime
 import requests
-import unicodedata
 import re
 
 def my_view(request):
