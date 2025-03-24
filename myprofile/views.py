@@ -176,18 +176,6 @@ def voice(request):
             fs = FileSystemStorage()
             path = os.path.join(output)
             url = fs.url(path)
-            # print(voi)
-            # print(url)
-            # if "download" in request.POST:
-            #     media_root = settings.MEDIA_ROOT
-            #     for filename in os.listdir(media_root):
-            #         if output:
-            #             print(output)
-            #             file_path = os.path.join(media_root, filename)
-            #             if os.path.isfile(file_path) or os.path.islink(file_path):
-            #                 os.remove(file_path)  # Remove file or symlink
-            #             elif os.path.isdir(file_path):
-            #                 shutil.rmtree(file_path)
             return render(request,'voice.html',{'voice':url})
         
 
