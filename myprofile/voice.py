@@ -99,65 +99,111 @@
 #     # Wait until all speech is finished
 #     engine.runAndWait()
 
+########### nice text to voice with control ################
 
-import pyttsx3
 
-def list_available_voices():
-    """Lists all available voices with their index and details."""
-    engine = pyttsx3.init()
-    voices = engine.getProperty('voices')
-    for index, voice in enumerate(voices):
-        print(f"Voice {index}:")
-        print(f" - ID: {voice.id}")
-        print(f" - Name: {voice.name}")
-        print(f" - Language: {voice.languages}\n")
-    engine.stop()
+# import pyttsx3
 
-def customize_tts(text, output_file, voice_index=1):
+# def list_available_voices():
+#     """Lists all available voices with their index and details."""
+#     engine = pyttsx3.init()
+#     voices = engine.getProperty('voices')
+#     for index, voice in enumerate(voices):
+#         print(f"Voice {index}:")
+#         print(f" - ID: {voice.id}")
+#         print(f" - Name: {voice.name}")
+#         print(f" - Language: {voice.languages}\n")
+#     engine.stop()
+
+# def customize_tts(text, output_file, voice_index=1):
+#     """
+#     Converts text to speech and saves it to an audio file.
+    
+#     Parameters:
+#     - text (str): The text to be spoken.
+#     - output_file (str): The output file where the audio will be saved.
+#     - voice_index (int): Index of the desired voice to use (default is 0).
+#     """
+#     # Initialize the TTS engine
+#     engine = pyttsx3.init()
+    
+#     # Get the list of voices and select one by index
+#     voices = engine.getProperty('voices')
+#     if voice_index < len(voices):
+#         engine.setProperty('voice', voices[voice_index].id)
+#     else:
+#         print(f"Voice index {voice_index} out of range, using default voice.")
+    
+#     # Set default volume
+#     engine.setProperty('volume', 1)  # Volume level (0.0 to 1.0)
+
+#     # Determine speech rate based on total text length
+#     if len(text.split()) <= 3:
+#         rate = 400
+
+#     if len(text.split()) <= 10:
+#         rate = 300  # Faster rate for shorter texts
+#     elif len(text.split()) <= 15:
+#         rate = 250 
+#     elif len(text.split()) <= 20:
+#         rate = 200  # Normal-fast rate for medium-length texts
+#     else:
+#         rate = 100  # Slower rate for longer texts
+
+#     # Set the speech rate
+#     engine.setProperty('rate', rate)
+
+#     # Save the speech to the output file
+#     engine.save_to_file(text, output_file)
+
+#     # Wait until all speech is finished
+#     engine.runAndWait()
+
+##########################################################################
+
+
+
+
+
+from gtts import gTTS
+from pydub import AudioSegment
+
+def get_speed_factor(text):
     """
-    Converts text to speech and saves it to an audio file.
+    Determine speech speed based on the length of the text.
+    """
+    word_count = len(text.split())
+
+    if word_count <= 3:
+        return 1.5  # Very fast
+    elif word_count <= 10:
+        return 1.3  # Fast
+    elif word_count <= 15:
+        return 1.1  # Slightly fast
+    elif word_count <= 20:
+        return 1.0  # Normal
+    else:
+        return 0.8  # Slow for longer texts
+
+def customize_tts(text, output_file):
+    """
+    Converts text to speech and adjusts speed dynamically.
     
     Parameters:
     - text (str): The text to be spoken.
     - output_file (str): The output file where the audio will be saved.
-    - voice_index (int): Index of the desired voice to use (default is 0).
     """
-    # Initialize the TTS engine
-    engine = pyttsx3.init()
+    speed = get_speed_factor(text)
     
-    # Get the list of voices and select one by index
-    voices = engine.getProperty('voices')
-    if voice_index < len(voices):
-        engine.setProperty('voice', voices[voice_index].id)
-    else:
-        print(f"Voice index {voice_index} out of range, using default voice.")
-    
-    # Set default volume
-    engine.setProperty('volume', 1)  # Volume level (0.0 to 1.0)
+    # Generate speech
+    tts = gTTS(text=text, lang="en")
+    temp_file = "temp.mp3"
+    tts.save(temp_file)
 
-    # Determine speech rate based on total text length
-    if len(text.split()) <= 3:
-        rate = 400
+    # Load audio and change speed
+    audio = AudioSegment.from_file(temp_file)
+    new_audio = audio.speedup(playback_speed=speed)
 
-    if len(text.split()) <= 10:
-        rate = 300  # Faster rate for shorter texts
-    elif len(text.split()) <= 15:
-        rate = 250 
-    elif len(text.split()) <= 20:
-        rate = 200  # Normal-fast rate for medium-length texts
-    else:
-        rate = 100  # Slower rate for longer texts
-
-    # Set the speech rate
-    engine.setProperty('rate', rate)
-
-    # Save the speech to the output file
-    engine.save_to_file(text, output_file)
-
-    # Wait until all speech is finished
-    engine.runAndWait()
-
-# Example usage
-# text_input = "This is a simple demonstration of Text to Speech customization that should sound faster and more fluid."
-# output_file = "output_speech.wav"
-# customize_tts(text_input,output_file)
+    # Export final audio
+    new_audio.export(output_file, format="mp3")
+    print(f"Audio saved as {output_file} with speed {speed}")

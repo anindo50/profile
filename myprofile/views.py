@@ -170,7 +170,7 @@ def voice(request):
             output = text.split(' ')[0] + ".wav"
             output_path = os.path.join(settings.MEDIA_ROOT, output) 
             
-            voi = customize_tts(text,output_path,voice_index=1)
+            voi = customize_tts(text,output_path)
             
             url = output_path.replace("\\","/")
             fs = FileSystemStorage()
