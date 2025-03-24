@@ -251,7 +251,7 @@ def fetch_news():
     
     driver = create_driver()  # Open the browser only once
 
-    for h in headlines[:5]:
+    for h in headlines[5:]:
         article_url = h.get('href').strip()
         article_title = h.get('title')
         if article_url.startswith("//"):
