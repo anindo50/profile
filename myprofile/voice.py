@@ -165,58 +165,58 @@
 
 ######### custom google tts #################
 
-# from gtts import gTTS
-# from pydub import AudioSegment
+from gtts import gTTS
+from pydub import AudioSegment
 
-# def get_speed_factor(text):
-#     """
-#     Determine speech speed based on the length of the text.
-#     """
-#     word_count = len(text.split())
+def get_speed_factor(text):
+    """
+    Determine speech speed based on the length of the text.
+    """
+    word_count = len(text.split())
 
-#     if word_count <= 3:
-#         return 1.5  # Very fast
-#     elif word_count <= 10:
-#         return 1.3  # Fast
-#     elif word_count <= 15:
-#         return 1.1  # Slightly fast
-#     elif word_count <= 20:
-#         return 1.0  # Normal
-#     else:
-#         return 0.8  # Slow for longer texts
+    if word_count <= 3:
+        return 1.5  # Very fast
+    elif word_count <= 10:
+        return 1.3  # Fast
+    elif word_count <= 15:
+        return 1.1  # Slightly fast
+    elif word_count <= 20:
+        return 1.0  # Normal
+    else:
+        return 0.8  # Slow for longer texts
 
-# def customize_tts(text, output_file):
-#     """
-#     Converts text to speech and adjusts speed dynamically.
+def customize_tts(text, output_file):
+    """
+    Converts text to speech and adjusts speed dynamically.
     
-#     Parameters:
-#     - text (str): The text to be spoken.
-#     - output_file (str): The output file where the audio will be saved.
-#     """
-#     speed = get_speed_factor(text)
+    Parameters:
+    - text (str): The text to be spoken.
+    - output_file (str): The output file where the audio will be saved.
+    """
+    speed = get_speed_factor(text)
     
-#     # Generate speech
-#     tts = gTTS(text=text, lang="en")
-#     temp_file = "temp.mp3"
-#     tts.save(temp_file)
+    # Generate speech
+    tts = gTTS(text=text, lang="en")
+    temp_file = "temp.mp3"
+    tts.save(temp_file)
 
-#     # Load audio and change speed
-#     audio = AudioSegment.from_file(temp_file)
-#     new_audio = audio.speedup(playback_speed=speed)
+    # Load audio and change speed
+    audio = AudioSegment.from_file(temp_file)
+    new_audio = audio.speedup(playback_speed=speed)
 
-#     # Export final audio
-#     new_audio.export(output_file, format="mp3")
-#     print(f"Audio saved as {output_file} with speed {speed}")
+    # Export final audio
+    new_audio.export(output_file, format="mp3")
+    print(f"Audio saved as {output_file} with speed {speed}")
 
 
 
 ###############################################################
 
 
-import time
-from gtts import gTTS
+# import time
+# from gtts import gTTS
 
-def customize_tts(text, output_file):
-    time.sleep(2)  # Wait before making a new request
-    tts = gTTS(text=text, lang="en")
-    tts.save(output_file)
+# def customize_tts(text, output_file):
+#     time.sleep(2)  # Wait before making a new request
+#     tts = gTTS(text=text, lang="en")
+#     tts.save(output_file)
