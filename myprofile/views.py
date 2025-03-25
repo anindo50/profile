@@ -227,7 +227,7 @@ def create_driver():
     chrome_options.add_argument('disable-infobars')  # Disable the infobar
     chrome_options.add_argument('--disable-extensions')  # Disable extensions
     chrome_options.add_argument('--disable-gpu')  # Disable GPU (needed for headless mode)
-    chrome_options.add_argument("--proxy-server=http://https://profile-ub5d.onrender.com:8000")
+    chrome_options.add_argument("--proxy-server=https://profile-ub5d.onrender.com:8000")
 
     # Set the custom User-Agent
     chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')
