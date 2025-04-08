@@ -357,6 +357,7 @@ def news_view(request):
     return render(request, 'news.html', {'news_data': new_dic})
 
 
+
 def update_news(request):
     today = datetime.today().date()
     new_dic = {}
